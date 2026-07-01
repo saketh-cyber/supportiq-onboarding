@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UserRecord } from "@/lib/types";
+
+const PAGE_SIZE = 5;
 
 export default function DataPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   async function load() {
+    setLoading(true);
     const res = await fetch("/api/users", { cache: "no-store" });
     if (res.ok) {
       const { users } = await res.json();
       setUsers(users);
+      setPage(1);
     }
     setLoading(false);
   }
@@ -27,6 +32,16 @@ export default function DataPage() {
       return <span className="badge">Completed</span>;
     return <span className="badge gray">Step {step} of 3</span>;
   }
+
+  const pageCount = Math.max(1, Math.ceil(users.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageUsers = useMemo(
+    () => users.slice(pageStart, pageStart + PAGE_SIZE),
+    [pageStart, users]
+  );
+  const visibleStart = users.length === 0 ? 0 : pageStart + 1;
+  const visibleEnd = Math.min(pageStart + PAGE_SIZE, users.length);
 
   return (
     <div className="data-wrap">
@@ -53,40 +68,72 @@ export default function DataPage() {
             No users yet. Complete the onboarding flow to see records here.
           </div>
         ) : (
-          <table className="data">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Progress</th>
-                <th>About me</th>
-                <th>Address</th>
-                <th>City</th>
-                <th>State</th>
-                <th>ZIP</th>
-                <th>Birthdate</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.email}</td>
-                  <td>{stepBadge(u.current_step)}</td>
-                  <td className="about-cell">
-                    <ExpandableText text={u.about_me} />
-                  </td>
-                  <td>{u.street_address || "—"}</td>
-                  <td>{u.city || "—"}</td>
-                  <td>{u.state || "—"}</td>
-                  <td>{u.zip || "—"}</td>
-                  <td>{u.birthdate || "—"}</td>
-                  <td className="mono">
-                    {new Date(u.created_at).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            <div className="table-shell">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Progress</th>
+                    <th>About me</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>ZIP</th>
+                    <th>Birthdate</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageUsers.map((u) => (
+                    <tr key={u.id}>
+                      <td>{u.email}</td>
+                      <td>{stepBadge(u.current_step)}</td>
+                      <td className="about-cell">
+                        <ExpandableText text={u.about_me} />
+                      </td>
+                      <td>{u.street_address || "—"}</td>
+                      <td>{u.city || "—"}</td>
+                      <td>{u.state || "—"}</td>
+                      <td>{u.zip || "—"}</td>
+                      <td>{u.birthdate || "—"}</td>
+                      <td className="mono">
+                        {new Date(u.created_at).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="table-footer">
+              <span>
+                Showing {visibleStart}-{visibleEnd} of {users.length}
+              </span>
+              <div className="pager">
+                <button
+                  className="pager-btn"
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((value) => Math.max(1, value - 1))}
+                >
+                  Previous
+                </button>
+                <span className="pager-status">
+                  Page {currentPage} of {pageCount}
+                </span>
+                <button
+                  className="pager-btn"
+                  type="button"
+                  disabled={currentPage === pageCount}
+                  onClick={() =>
+                    setPage((value) => Math.min(pageCount, value + 1))
+                  }
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>
