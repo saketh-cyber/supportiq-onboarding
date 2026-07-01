@@ -173,11 +173,15 @@ export default function OnboardingPage() {
     return <div className="center-load">Loading…</div>;
   }
 
+  const activeComponents =
+    step === 2 ? config.page2 : step === 3 ? config.page3 : [];
+  const isCompactCard = activeComponents.length >= 3;
+
   return (
     <div className="shell">
       <Rail step={step} />
-      <main className="main">
-        <div className="card">
+      <main className={isCompactCard ? "main main-compact" : "main"}>
+        <div className={isCompactCard ? "card card-compact" : "card"}>
           <MobileSteps step={step} />
 
           {info && step !== 4 && <div className="alert alert-info">{info}</div>}
@@ -306,7 +310,7 @@ function StepComponents({
   isFinal?: boolean;
 }) {
   return (
-    <>
+    <div className={components.length >= 3 ? "step-form step-form-compact" : "step-form"}>
       <div className="eyebrow">Step {pageNumber} of 3</div>
       <h1 className="title">
         {isFinal ? "Last few details" : "Fill in your details"}
@@ -315,9 +319,11 @@ function StepComponents({
         These fields were configured by your workspace admin.
       </p>
 
-      {components.map((c) => (
-        <ComponentBlock key={c} which={c} data={profile} onChange={patch} />
-      ))}
+      <div className={components.length >= 3 ? "component-list component-list-dense" : "component-list"}>
+        {components.map((c) => (
+          <ComponentBlock key={c} which={c} data={profile} onChange={patch} />
+        ))}
+      </div>
 
       <div className="actions">
         {onBack ? (
@@ -330,7 +336,7 @@ function StepComponents({
           {busy ? "Saving…" : isFinal ? "Finish setup" : "Continue"}
         </button>
       </div>
-    </>
+    </div>
   );
 }
 

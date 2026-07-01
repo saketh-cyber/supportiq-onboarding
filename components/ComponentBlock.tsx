@@ -41,7 +41,7 @@ export function ComponentBlock({
 }: Props & { which: ComponentKey }) {
   if (which === "about_me") {
     return (
-      <div className="group">
+      <div className="group group-about">
         <div className="group-head">About you</div>
         <div className="field" style={{ marginBottom: 0 }}>
           <label htmlFor="about_me">Tell us a bit about yourself</label>
@@ -59,7 +59,7 @@ export function ComponentBlock({
 
   if (which === "address") {
     return (
-      <div className="group">
+      <div className="group group-address">
         <div className="group-head">Mailing address</div>
         <div className="field">
           <label htmlFor="street">Street address</label>
@@ -161,7 +161,7 @@ function BirthdateSelector({
   }
 
   return (
-    <div className="group">
+    <div className="group group-birthdate">
       <div className="group-head">Date of birth</div>
       <div className="field" style={{ marginBottom: 0 }}>
         <label>Select your birthdate</label>
