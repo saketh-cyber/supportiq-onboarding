@@ -137,7 +137,7 @@ export default function OnboardingPage() {
     setBusy(true);
     setError(null);
     try {
-      await fetch("/api/user", {
+      const res = await fetch("/api/user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -152,6 +152,11 @@ export default function OnboardingPage() {
           current_step: targetStep,
         }),
       });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error || "Could not save your changes. Please try again.");
+        return;
+      }
       setStep(targetStep);
     } finally {
       setBusy(false);

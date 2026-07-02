@@ -6,6 +6,9 @@ import { UserRecord } from "@/lib/types";
 export const dynamic = "force-dynamic";
 
 const PASSWORD_COST = 12;
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+};
 
 // POST /api/user
 // Two modes:
@@ -21,7 +24,10 @@ export async function POST(req: NextRequest) {
   if (action === "update") {
     return handleUpdate(body);
   }
-  return NextResponse.json({ error: "Unknown action." }, { status: 400 });
+  return NextResponse.json(
+    { error: "Unknown action." },
+    { status: 400, headers: noStoreHeaders }
+  );
 }
 
 async function handleStart(body: any) {
@@ -31,7 +37,7 @@ async function handleStart(body: any) {
   if (!email || !password) {
     return NextResponse.json(
       { error: "Email and password are required." },
-      { status: 400 }
+      { status: 400, headers: noStoreHeaders }
     );
   }
 
@@ -50,10 +56,13 @@ async function handleStart(body: any) {
     if (!matches) {
       return NextResponse.json(
         { error: "That email is already registered with a different password." },
-        { status: 401 }
+        { status: 401, headers: noStoreHeaders }
       );
     }
-    return NextResponse.json({ user: stripPassword(user), resumed: true });
+    return NextResponse.json(
+      { user: stripPassword(user), resumed: true },
+      { headers: noStoreHeaders }
+    );
   }
 
   // New user: create the record starting at step 2.
@@ -71,17 +80,23 @@ async function handleStart(body: any) {
   if (error || !data) {
     return NextResponse.json(
       { error: error?.message || "Could not create user." },
-      { status: 500 }
+      { status: 500, headers: noStoreHeaders }
     );
   }
 
-  return NextResponse.json({ user: stripPassword(data as UserRecord), resumed: false });
+  return NextResponse.json(
+    { user: stripPassword(data as UserRecord), resumed: false },
+    { headers: noStoreHeaders }
+  );
 }
 
 async function handleUpdate(body: any) {
   const id = body.id as string;
   if (!id) {
-    return NextResponse.json({ error: "Missing user id." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing user id." },
+      { status: 400, headers: noStoreHeaders }
+    );
   }
 
   // Only allow known profile columns to be written.
@@ -109,11 +124,14 @@ async function handleUpdate(body: any) {
   if (error || !data) {
     return NextResponse.json(
       { error: error?.message || "Could not update user." },
-      { status: 500 }
+      { status: 500, headers: noStoreHeaders }
     );
   }
 
-  return NextResponse.json({ user: stripPassword(data as UserRecord) });
+  return NextResponse.json(
+    { user: stripPassword(data as UserRecord) },
+    { headers: noStoreHeaders }
+  );
 }
 
 function stripPassword(user: UserRecord & { password?: string }) {

@@ -6,6 +6,10 @@ import { ALL_COMPONENTS, ComponentKey, DEFAULT_CONFIG } from "@/lib/types";
 // live database state rather than a cached build-time snapshot.
 export const dynamic = "force-dynamic";
 
+const noStoreHeaders = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+};
+
 // GET /api/config — returns which components appear on pages 2 and 3.
 export async function GET() {
   const { data, error } = await supabaseAdmin
@@ -16,10 +20,13 @@ export async function GET() {
 
   if (error || !data) {
     // Fall back to defaults if the row is somehow missing.
-    return NextResponse.json(DEFAULT_CONFIG);
+    return NextResponse.json(DEFAULT_CONFIG, { headers: noStoreHeaders });
   }
 
-  return NextResponse.json({ page2: data.page2, page3: data.page3 });
+  return NextResponse.json(
+    { page2: data.page2, page3: data.page3 },
+    { headers: noStoreHeaders }
+  );
 }
 
 // POST /api/config — updates the component layout for pages 2 and 3.
@@ -32,7 +39,7 @@ export async function POST(req: NextRequest) {
   if (page2.length === 0 || page3.length === 0) {
     return NextResponse.json(
       { error: "Each page must have at least one component." },
-      { status: 400 }
+      { status: 400, headers: noStoreHeaders }
     );
   }
 
@@ -42,10 +49,13 @@ export async function POST(req: NextRequest) {
     .eq("id", 1);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers: noStoreHeaders }
+    );
   }
 
-  return NextResponse.json({ page2, page3 });
+  return NextResponse.json({ page2, page3 }, { headers: noStoreHeaders });
 }
 
 // Keep only valid, known component keys and drop duplicates.
