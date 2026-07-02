@@ -68,7 +68,7 @@ export default function DataPage() {
             No users yet. Complete the onboarding flow to see records here.
           </div>
         ) : (
-          <>
+          <div className="table-inner">
             <div className="table-shell">
               <table className="data">
                 <thead>
@@ -133,7 +133,7 @@ export default function DataPage() {
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

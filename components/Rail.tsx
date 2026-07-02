@@ -37,10 +37,16 @@ export function Rail({ step }: { step: number }) {
 
 export function MobileSteps({ step }: { step: number }) {
   return (
-    <div className="mobile-steps">
-      {[1, 2, 3].map((n) => (
-        <span key={n} className={`pill ${step >= n ? "on" : ""}`} />
-      ))}
+    <div className="mobile-progress">
+      <div className="mobile-brand">
+        <span className="brand-mark">S</span>
+        <span>SupportIQ</span>
+      </div>
+      <div className="mobile-steps" aria-label={`Step ${Math.min(step, 3)} of 3`}>
+        {[1, 2, 3].map((n) => (
+          <span key={n} className={`pill ${step >= n ? "on" : ""}`} />
+        ))}
+      </div>
     </div>
   );
 }
