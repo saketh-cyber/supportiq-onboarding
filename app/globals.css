@@ -708,6 +708,11 @@ h1.title {
   min-height: 0;
 }
 
+.component-list-dense .group-address .row-3 {
+  grid-template-columns: minmax(0, 1.35fr) minmax(72px, 0.75fr) minmax(94px, 1fr);
+  gap: 8px;
+}
+
 .group {
   position: relative;
   margin-bottom: 16px;
