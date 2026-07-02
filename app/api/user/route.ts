@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_noStore as noStore } from "next/cache";
 import bcrypt from "bcryptjs";
 import { supabaseAdmin } from "@/lib/supabase";
 import { UserRecord } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const PASSWORD_COST = 12;
 const noStoreHeaders = {
@@ -15,6 +18,8 @@ const noStoreHeaders = {
 //   action = "start"  -> create or resume a user from email + password (page 1)
 //   action = "update" -> save profile fields for an existing user (pages 2 & 3)
 export async function POST(req: NextRequest) {
+  noStore();
+
   const body = await req.json();
   const action = body.action as string;
 

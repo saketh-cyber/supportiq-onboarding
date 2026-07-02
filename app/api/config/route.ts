@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_noStore as noStore } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase";
 import { ALL_COMPONENTS, ComponentKey, DEFAULT_CONFIG } from "@/lib/types";
 
 // Always run this route dynamically so the /data and admin pages reflect
 // live database state rather than a cached build-time snapshot.
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const noStoreHeaders = {
   "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -12,6 +15,8 @@ const noStoreHeaders = {
 
 // GET /api/config — returns which components appear on pages 2 and 3.
 export async function GET() {
+  noStore();
+
   const { data, error } = await supabaseAdmin
     .from("page_config")
     .select("page2, page3")
@@ -32,6 +37,8 @@ export async function GET() {
 // POST /api/config — updates the component layout for pages 2 and 3.
 // Enforces that each page keeps at least one component.
 export async function POST(req: NextRequest) {
+  noStore();
+
   const body = await req.json();
   const page2 = sanitize(body.page2);
   const page3 = sanitize(body.page3);

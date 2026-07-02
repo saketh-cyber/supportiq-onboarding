@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+import { unstable_noStore as noStore } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const noStoreHeaders = {
   "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
@@ -10,6 +13,8 @@ const noStoreHeaders = {
 // GET /api/users — returns all users for the public /data table.
 // No auth by design; this is a testing view of the backing database.
 export async function GET() {
+  noStore();
+
   const { data, error } = await supabaseAdmin
     .from("users")
     .select(
